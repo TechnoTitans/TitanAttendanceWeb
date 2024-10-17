@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"TitanAttendance/src/utils"
 	"errors"
 	"math/rand"
 	"net/http"
@@ -23,13 +24,12 @@ const (
 )
 
 const PasswordExpiration = 1 * time.Hour
-const adminPassword = "Titan!1683"
 
 var PasswordCreationTime = time.UnixMicro(0)
 var userPin = ""
 
 func (a *Authentication) CheckPin() (UserAccess, error) {
-	if a.Pin == adminPassword {
+	if a.Pin == utils.GetAdminPassword() {
 		return UserAccess{UserLevel: admin}, nil
 	}
 	if !PasswordCreationTime.IsZero() && a.Pin == userPin && !HasPasswordExpired() {
