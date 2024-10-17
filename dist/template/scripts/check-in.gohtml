@@ -1,0 +1,46 @@
+{{define "check-in-script"}}
+    <script>
+        $(document).ready(function () {
+            const studentID = $('#number-input');
+
+            $("#warning-dismiss-button").on("click", () => {
+                studentID.val('');
+                $("#warning-modal").addClass("hidden");
+            });
+
+            $("#register-account-button").on("click", () => {
+                window.location.replace("/create-user/" + studentID.val());
+            });
+
+            $('form').submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/api/check-in',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        student_id: studentID.val()
+                    }),
+                    success: function(data) {
+                        studentID.val('');
+                        $("#alert-additional-content-5").addClass("hidden");
+                        $("#check-in-success").removeClass("hidden");
+                        setTimeout(() => {
+                            $("#check-in-success").addClass("hidden");
+                        }, 3000);
+                    },
+                    error: function(err) {
+                        switch (err.responseText) {
+                            case "student ID does not exist":
+                                $("#warning-modal").removeClass("hidden");
+                                break;
+                            default:
+                                console.log(err);
+                                break;
+                        }
+                    }
+                })
+            });
+        });
+    </script>
+{{end}}

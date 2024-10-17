@@ -1,0 +1,32 @@
+{{define "pin-script"}}
+    <script>
+        $(document).ready(function () {
+            const pin = $('#pin-input');
+            $('form').submit(function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    url: '/api/check-pin',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        Pin: pin.val()
+                    }),
+                    success: function(data) {
+                        window.location.reload()
+                    },
+                    error: function(err) {
+                        switch (err.responseText) {
+                            case "invalid pin":
+                                console.log('invalid pin');
+                                break;
+                            default:
+                                console.log(err);
+                                break;
+                        }
+                        pin.val('')
+                    }
+                })
+            });
+        });
+    </script>
+{{end}}

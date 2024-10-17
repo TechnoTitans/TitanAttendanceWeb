@@ -1,0 +1,35 @@
+{{define "create-user-script"}}
+    <script>
+        $(document).ready(function () {
+            $('form').submit(function (e) {
+                e.preventDefault();
+                const nameInput = $('#name-input');
+
+                $.ajax({
+                    url: '/api/create-user',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        student_id: {{.StudentID}},
+                        name: nameInput.val()
+                    }),
+                    success: function (data) {
+                        $("#create-user-success").removeClass("hidden");
+                        setTimeout(() => {
+                            window.location.replace("/");
+                        }, 3000);
+                    },
+                    error: function (err) {
+                        switch (err.responseText) {
+                            default:
+                                console.log(err);
+                                break;
+                        }
+
+                    }
+                }).always(function(message) {
+                    nameInput.val('');
+                })
+            });
+        });
+    </script>
+{{end}}
