@@ -2,9 +2,7 @@ package utils
 
 import "os"
 
-const (
-	port = ":8081"
-)
+const port = ":8081"
 
 func GetPort() string {
 	return port
