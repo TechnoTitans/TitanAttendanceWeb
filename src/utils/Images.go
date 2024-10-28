@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"TitanAttendance/src/assets"
 	"bytes"
 	"encoding/base64"
 	"fmt"
@@ -38,7 +37,7 @@ func CreateQRCode(pin *string) string {
 	}
 
 	qrc, err := qrcode.NewWith(
-		GetDomain()+"/pin?code="+*pin,
+		fmt.Sprintf("%s/pin?code=%s", GetDomain(), *pin),
 		qrcode.WithEncodingMode(qrcode.EncModeByte),
 		qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionHighest),
 	)
@@ -47,10 +46,10 @@ func CreateQRCode(pin *string) string {
 		return ""
 	}
 
-	ttImg, err := ByteArrayToImage(assets.TTLogo)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to convert byte array to image.")
-	}
+	//ttImg, err := ByteArrayToImage(assets.TTLogo)
+	//if err != nil {
+	//	log.Error().Err(err).Msg("Failed to convert byte array to image.")
+	//}
 
 	buf := bytes.NewBuffer(nil)
 	wr := nopCloser{Writer: buf}
@@ -59,8 +58,8 @@ func CreateQRCode(pin *string) string {
 		standard.WithQRWidth(10),
 		standard.WithBorderWidth(3),
 		standard.WithBgTransparent(),
-		standard.WithLogoImage(ttImg),
-		standard.WithLogoSizeMultiplier(0),
+		//standard.WithLogoImage(ttImg),
+		//standard.WithLogoSizeMultiplier(0),
 	)
 	err = qrc.Save(w2)
 	if err != nil {
