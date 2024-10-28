@@ -68,6 +68,10 @@ func HasPasswordExpired() bool {
 	return time.Since(PasswordCreationTime) > PasswordExpiration
 }
 
+func PlainUser() UserAccess {
+	return UserAccess{UserLevel: plain}
+}
+
 func SavePinCookie(w http.ResponseWriter, userAuth Authentication) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "TitanAttendancePin",

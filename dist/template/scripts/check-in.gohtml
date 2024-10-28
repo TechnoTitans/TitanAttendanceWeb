@@ -3,6 +3,12 @@
         $(document).ready(function () {
             const studentID = $('#number-input');
 
+            {{if .IsAdmin}}
+            $('#qr-redirect').on("click", () => {
+                window.location.href = "/qr";
+            })
+            {{end}}
+
             $("#warning-dismiss-button").on("click", () => {
                 studentID.val('');
                 $("#warning-modal").addClass("hidden");
