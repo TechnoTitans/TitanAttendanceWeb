@@ -3,11 +3,12 @@ package users
 import (
 	"TitanAttendance/src/database"
 	"TitanAttendance/src/utils"
-	"cloud.google.com/go/firestore"
 	"context"
 	"encoding/csv"
 	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 	"os"
+	"time"
 )
 
 var users []User
@@ -18,14 +19,11 @@ func AddNewStudent(user User) error {
 		return err
 	}
 
-	collection := database.GetFireDB().Client.Collection("TitanAttendance")
-	_, err = collection.Doc("students").Set(
-		context.Background(),
-		map[string]interface{}{
-			user.StudentID: user.Name,
-		},
-		firestore.MergeAll,
-	)
+	conn := database.GetConn()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err = conn.Database(utils.GetDBName()).Collection("students").InsertOne(ctx, user)
 	if err == nil {
 		users = append(users, user)
 	}
@@ -38,43 +36,47 @@ func GetStudents() []User {
 		return users
 	}
 
-	log.Info().Msg("Getting students from the database.")
+	conn := database.GetConn()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	collection := database.GetFireDB().Client.Collection("TitanAttendance")
-	doc, err := collection.Doc("students").Get(context.Background())
+	cur, err := conn.Database(utils.GetDBName()).Collection("students").Find(ctx, map[string]interface{}{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get students.")
 		return nil
 	}
 
-	data := doc.Data()
-	for k, v := range data {
-		users = append(users, User{
-			StudentID: k,
-			Name:      v.(string),
-		})
+	defer func(cur *mongo.Cursor) {
+		err = cur.Close(ctx)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to close cursor.")
+		}
+	}(cur)
+
+	for cur.Next(ctx) {
+		var user User
+		err = cur.Decode(&user)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to decode user.")
+			return nil
+		}
+		users = append(users, user)
 	}
 
 	return users
 }
 
 func ClearAllStudents() error {
-	collection := database.GetFireDB().Client.Collection("TitanAttendance")
-	_, err := collection.Doc("students").Delete(context.Background())
+	conn := database.GetConn()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	_, err := conn.Database(utils.GetDBName()).Collection("students").DeleteMany(ctx, nil)
 	if err != nil {
 		return err
 	}
 
 	users = []User{}
-	return nil
-}
-
-func ClearAllMeetings() error {
-	collection := database.GetFireDB().Client.Collection("TitanAttendance")
-	_, err := collection.Doc("meetings").Delete(context.Background())
-	if err != nil {
-		return err
-	}
 	return nil
 }
 

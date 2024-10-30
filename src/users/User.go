@@ -3,20 +3,17 @@ package users
 import (
 	"TitanAttendance/src/database"
 	"TitanAttendance/src/utils"
-	"cloud.google.com/go/firestore"
 	"context"
 	"errors"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"time"
 )
 
 type User struct {
 	StudentID string `json:"student_id"`
 	Name      string `json:"name"`
 }
-
-var absentExists = false
 
 func (u *User) IsValid() error {
 	if u.StudentID == "" {
@@ -56,42 +53,54 @@ func (u *User) CheckIn() error {
 		return errors.New("student ID does not exist")
 	}
 
-	collection := database.GetFireDB().Client.Collection("TitanAttendance")
-	currentMeeting := collection.Doc("meetings").Collection(utils.GetCurrentDate())
+	conn := database.GetConn()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	_, err := currentMeeting.Doc("Present").Set(
-		context.Background(),
+	findResult := conn.Database(utils.GetDBName()).Collection("meetings").FindOne(
+		ctx,
 		map[string]interface{}{
-			u.Name: utils.GetCurrentTime(),
+			"date": utils.GetCurrentDate(),
 		},
-		firestore.MergeAll,
 	)
-	if err != nil {
-		return errors.New("failed to add student to present list in Firebase")
-	}
-
-	if !absentExists {
-		absentExists = true
-		docs, err := currentMeeting.Doc("Absent").Get(context.Background())
-		if err != nil && status.Code(err) != codes.NotFound {
-			return errors.New("failed to get documents from this meeting in Firebase")
+	if errors.Is(findResult.Err(), mongo.ErrNoDocuments) {
+		meeting := Meeting{
+			Date:    utils.GetCurrentDate(),
+			Absent:  []AbsentStudent{},
+			Present: []PresentStudent{},
 		}
-		if !docs.Exists() {
-			for _, student := range GetStudents() {
-				if student.StudentID != u.StudentID {
-					_, err = currentMeeting.Doc("Absent").Set(
-						context.Background(),
-						map[string]interface{}{
-							student.Name: "",
-						},
-						firestore.MergeAll,
-					)
-					if err != nil {
-						return errors.New("failed to create absent list in Firebase")
-					}
-				}
+
+		for _, student := range GetStudents() {
+			if student.StudentID != u.StudentID {
+				meeting.Absent = append(meeting.Absent, AbsentStudent{StudentName: student.Name})
 			}
 		}
+
+		_, err := conn.Database(utils.GetDBName()).Collection("meetings").InsertOne(ctx, meeting)
+		if err != nil {
+			return errors.New("failed to create new meeting")
+		}
+	}
+
+	_, err := conn.Database(utils.GetDBName()).Collection("meetings").UpdateOne(
+		ctx,
+		map[string]interface{}{
+			"date": utils.GetCurrentDate(),
+		},
+		map[string]interface{}{
+			"$pull": map[string]interface{}{
+				"absent": AbsentStudent{StudentName: u.Name},
+			},
+			"$push": map[string]interface{}{
+				"present": PresentStudent{
+					StudentName: u.Name,
+					Time:        utils.GetCurrentTime(),
+				},
+			},
+		},
+	)
+	if err != nil {
+		return errors.New("failed to check in")
 	}
 
 	log.Info().Msgf("%s | Checked In!", u.Name)

@@ -1,54 +1,52 @@
 package database
 
 import (
-	"TitanAttendance/src/utils"
-	"cloud.google.com/go/firestore"
 	"context"
-	firebase "firebase.google.com/go"
 	"fmt"
 	"github.com/rs/zerolog/log"
-	"google.golang.org/api/option"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/readconcern"
+	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
+	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
+	"time"
 )
 
-type FireDB struct {
-	*firestore.Client
-}
+const authUrl = "mongodb://127.0.0.1:27017/"
 
-var fireDB FireDB
+var client *mongo.Client
 
-func (db *FireDB) Connect() error {
-	ctx := context.Background()
-	opt := option.WithAPIKey(utils.GetAPIKey())
-	config := &firebase.Config{
-		DatabaseURL:   utils.GetAuthDomain(),
-		ProjectID:     utils.GetProjectID(),
-		StorageBucket: utils.GetStorageBucket(),
-	}
+func Connect(timeout time.Duration) {
+	var err error
 
-	app, err := firebase.NewApp(ctx, config, opt)
+	var clientOptions = options.Client().
+		ApplyURI(fmt.Sprintf(authUrl)).
+		SetMinPoolSize(15).
+		SetWriteConcern(writeconcern.Majority()).
+		SetReadConcern(readconcern.Majority())
+
+	client, err = mongo.Connect(clientOptions)
 	if err != nil {
-		return fmt.Errorf("error initializing app: %v", err)
+		log.Fatal().Err(err).Msg("Unable to establish connection to MongoDB")
 	}
-	client, err := app.Firestore(ctx)
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	err = client.Ping(ctx, readpref.Primary())
 	if err != nil {
-		return fmt.Errorf("error initializing database: %v", err)
-	}
-	db.Client = client
-	log.Info().Msgf("Connected to Firebase.")
-	return nil
-}
-
-func (db *FireDB) Disconnect() {
-	if db.Client != nil {
-		err := db.Client.Close()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to disconnect from Firebase.")
-		} else {
-			log.Info().Msg("Disconnected from Firebase.")
-		}
+		log.Fatal().Err(err).Msg("Unable to establish connection to MongoDB")
+	} else {
+		log.Info().Msg("Established connection to MongoDB")
 	}
 }
 
-func GetFireDB() *FireDB {
-	return &fireDB
+func Disconnect() {
+	if client != nil {
+		_ = client.Disconnect(context.Background())
+	}
+}
+
+func GetConn() *mongo.Client {
+	return client
 }

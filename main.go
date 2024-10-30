@@ -3,8 +3,10 @@ package main
 import (
 	"TitanAttendance/src/api"
 	"TitanAttendance/src/database"
+	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
 	"TitanAttendance/src/render"
+	"TitanAttendance/src/render/admin"
 	"TitanAttendance/src/users"
 	"TitanAttendance/src/utils"
 	"net/http"
@@ -22,16 +24,11 @@ func main() {
 		TimeFormat: "02 Jan 3:04:05 PM MST",
 	})
 
-	db := database.GetFireDB()
-	err := db.Connect()
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to connect to Firebase.")
-	}
-	defer db.Disconnect()
+	database.Connect(3 * time.Second)
+	defer database.Disconnect()
 
 	if len(os.Args) >= 2 {
-		var method utils.CSVUploadMethod
-		method, err = utils.AskForNewCSVMethod()
+		method, err := utils.AskForNewCSVMethod()
 		if err != nil {
 			log.Error().Err(err).Msg("Failed to get CSV upload method.")
 			<-time.After(5 * time.Second)
@@ -42,8 +39,6 @@ func main() {
 		return
 	}
 
-	users.GetStudents()
-
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/pin", render.CheckPin)
 	router.NotFoundHandler = http.HandlerFunc(render.Error404)
@@ -52,7 +47,7 @@ func main() {
 	authenticatedRoute.Use(middleware.Authenticate)
 	authenticatedRoute.HandleFunc("/", render.CheckIn)
 	authenticatedRoute.HandleFunc("/create-user/{id}", render.CreateUser)
-	authenticatedRoute.HandleFunc("/qr", render.QRCode)
+	authenticatedRoute.HandleFunc("/qr", admin.QRCode)
 
 	apiRoute := router.PathPrefix("/api").Subrouter()
 	apiRoute.HandleFunc("/check-pin", api.CheckPin).Methods("POST", "OPTIONS")
@@ -62,11 +57,19 @@ func main() {
 	authenticatedApiRoute.HandleFunc("/check-in", api.CheckIn).Methods("POST", "OPTIONS")
 	authenticatedApiRoute.HandleFunc("/create-user", api.CreateUser).Methods("POST", "OPTIONS")
 
+	downloadsRoute := router.PathPrefix("/downloads").Subrouter()
+	downloadsRoute.HandleFunc("/export-database", downloads.ExportDatabase)
+
 	filesRoute := router.PathPrefix("/files").Subrouter()
 	filesRoute.Use(middleware.Sanitize)
 	filesRoute.PathPrefix("/assets").Handler(
 		http.StripPrefix("/files/assets", http.FileServer(http.Dir("public/assets"))),
 	)
+
+	_, err := users.GetAllMeetings()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get all meetings.")
+	}
 
 	log.Info().Msgf("Starting server.")
 	err = http.ListenAndServe(utils.GetPort(), router)

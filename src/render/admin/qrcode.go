@@ -1,4 +1,4 @@
-package render
+package admin
 
 import (
 	"TitanAttendance/src/auth"
