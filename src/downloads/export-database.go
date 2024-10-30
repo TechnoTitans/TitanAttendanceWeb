@@ -4,7 +4,6 @@ import (
 	"TitanAttendance/src/auth"
 	"TitanAttendance/src/users"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"github.com/xuri/excelize/v2"
 	"net/http"
 )
@@ -27,46 +26,158 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 
 	xlxsFile := excelize.NewFile()
 	defer func() {
-		if err = xlxsFile.Close(); err != nil {
-			log.Error().Err(err).Msg("error closing file")
+		err = xlxsFile.Close()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
 		}
 	}()
 
 	meetings, err := users.GetAllMeetings()
 	if err != nil {
-		log.Error().Err(err).Msg("error getting all meetings")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			return
+		}
 		return
 	}
 
-	for _, date := range meetings {
-		fmt.Println(date.Date)
-		_, err = xlxsFile.NewSheet("date")
+	for _, meeting := range meetings {
+		_, err = xlxsFile.NewSheet(meeting.Date)
 		if err != nil {
-			log.Error().Err(err).Msg("error creating sheet")
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
 		}
 
+		err = xlxsFile.SetColWidth(meeting.Date, "B", "B", 20)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+		err = xlxsFile.SetCellValue(
+			meeting.Date,
+			"B2",
+			fmt.Sprintf("Present (%d)", len(meeting.Present)),
+		)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+
+		err = xlxsFile.SetColWidth(meeting.Date, "C", "C", 15)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+		err = xlxsFile.SetCellValue(
+			meeting.Date,
+			"C2",
+			"Check-in Time",
+		)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+
+		err = xlxsFile.SetColWidth(meeting.Date, "E", "E", 20)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+		err = xlxsFile.SetCellValue(
+			meeting.Date,
+			"E2",
+			fmt.Sprintf("Absent (%d)", len(meeting.Absent)),
+		)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			_, err = w.Write([]byte(err.Error()))
+			if err != nil {
+				return
+			}
+			return
+		}
+
+		for i, present := range meeting.Present {
+			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("B%d", i+3), present.StudentName)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, err = w.Write([]byte(err.Error()))
+				if err != nil {
+					return
+				}
+				return
+			}
+			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("C%d", i+3), present.Time)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, err = w.Write([]byte(err.Error()))
+				if err != nil {
+					return
+				}
+				return
+			}
+		}
+
+		for i, absent := range meeting.Absent {
+			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("E%d", i+3), absent.StudentName)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				_, err = w.Write([]byte(err.Error()))
+				if err != nil {
+					return
+				}
+				return
+			}
+		}
 	}
 
-	index, err := xlxsFile.NewSheet("Sheet2")
+	err = xlxsFile.DeleteSheet("Sheet1")
 	if err != nil {
-		fmt.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			return
+		}
 		return
 	}
 
-	// Set value of a cell.
-	err = xlxsFile.SetCellValue("Sheet2", "A2", "Hello world.")
-	if err != nil {
-		log.Error().Err(err).Msg("error setting cell value")
-	}
-	err = xlxsFile.SetCellValue("Sheet1", "B2", 100)
-	if err != nil {
-		log.Error().Err(err).Msg("error setting cell value")
-	}
+	xlxsFile.SetActiveSheet(0)
 
-	// Set active sheet of the workbook.
-	xlxsFile.SetActiveSheet(index)
-	// Save spreadsheet by the given path.
-	if err = xlxsFile.SaveAs("Book1.xlsx"); err != nil {
-		log.Error().Err(err).Msg("error saving file")
+	w.Header().Add("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Add("Content-Disposition", "attachment;filename=attendance.xlsx")
+
+	w.WriteHeader(http.StatusOK)
+	err = xlxsFile.Write(w)
+	if err != nil {
+		return
 	}
 }

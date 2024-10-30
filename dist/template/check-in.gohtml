@@ -72,6 +72,9 @@
     </div>
     {{ template "scripts" .}}
     {{ template "check-in-script" .}}
+    {{if .IsAdmin}}
+    {{ template "admin-buttons-script" .}}
+    {{end}}
 </body>
 </html>
 {{end}}

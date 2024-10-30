@@ -66,13 +66,8 @@ func main() {
 		http.StripPrefix("/files/assets", http.FileServer(http.Dir("public/assets"))),
 	)
 
-	_, err := users.GetAllMeetings()
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to get all meetings.")
-	}
-
 	log.Info().Msgf("Starting server.")
-	err = http.ListenAndServe(utils.GetPort(), router)
+	err := http.ListenAndServe(utils.GetPort(), router)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to start server.")
 		return
