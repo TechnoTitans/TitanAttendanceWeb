@@ -7,10 +7,7 @@
                 $.ajax({
                     url: '/api/logout',
                     method: 'POST',
-                    success: function(data) {
-                        window.location.reload();
-                    },
-                    error: function(err) {
+                    complete: function(data) {
                         window.location.reload();
                     }
                 })
