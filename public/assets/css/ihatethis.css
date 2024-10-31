@@ -11,3 +11,9 @@ body {
     -webkit-appearance: none;
     margin: 0;
 }
+#check-in-success {
+    border: 10px solid;
+    border-image-slice: 1;
+    border-width: 5px;
+    border-image-source: linear-gradient(45deg, #9333ea, #3b82f6);
+}
