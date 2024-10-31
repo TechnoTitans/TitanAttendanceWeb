@@ -2,9 +2,10 @@ package render
 
 import (
 	"TitanAttendance/src/auth"
-	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func CheckIn(w http.ResponseWriter, r *http.Request) {
@@ -13,7 +14,7 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 		"./dist/template/check-in.gohtml",
 		"./dist/template/global/scripts.gohtml",
 		"./dist/template/scripts/check-in.gohtml",
-		"./dist/template/scripts/buttons.gohtml",
+		"./dist/template/scripts/admin/buttons.gohtml",
 	)
 	if err != nil {
 		panic(err)

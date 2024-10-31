@@ -2,3 +2,5 @@
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/modules.xml
 /.idea/TitanAttendanceWeb.iml
+/.vscode
+__debug_*

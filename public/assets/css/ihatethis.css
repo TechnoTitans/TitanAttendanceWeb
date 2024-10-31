@@ -1,5 +1,11 @@
 body {
-    background-color:  rgba(0, 0, 104.55, 1);
+    background-color:  rgb(17, 24, 39);
+}
+#check-in-success{
+    z-index: 10;
+}
+#admin-button-div{
+    z-index: 0;
 }
 #number-input::-webkit-inner-spin-button {
     -webkit-appearance: none;

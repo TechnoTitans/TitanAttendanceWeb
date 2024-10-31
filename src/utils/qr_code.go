@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	"github.com/rs/zerolog/log"
-	"github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/standard"
 	"image"
 	"image/png"
 	"io"
+
+	"github.com/rs/zerolog/log"
+	"github.com/yeqown/go-qrcode/v2"
+	"github.com/yeqown/go-qrcode/writer/standard"
 )
 
 type nopCloser struct {
@@ -37,7 +38,7 @@ func CreateQRCode(pin *string) string {
 	}
 
 	qrc, err := qrcode.NewWith(
-		fmt.Sprintf("%s/pin?code=%s", Domain, *pin),
+		fmt.Sprintf("%s/login?code=%s", Domain, *pin),
 		qrcode.WithEncodingMode(qrcode.EncModeByte),
 		qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionHighest),
 	)
