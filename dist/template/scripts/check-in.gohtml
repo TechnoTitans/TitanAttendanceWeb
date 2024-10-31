@@ -3,6 +3,19 @@
         $(document).ready(function () {
             const studentID = $('#number-input');
 
+            $('#logout').on("click", () => {
+                $.ajax({
+                    url: '/api/logout',
+                    method: 'POST',
+                    success: function(data) {
+                        window.location.reload();
+                    },
+                    error: function(err) {
+                        window.location.reload();
+                    }
+                })
+            })
+
             $("#warning-dismiss-button").on("click", () => {
                 studentID.val('');
                 $("#warning-modal").addClass("hidden");

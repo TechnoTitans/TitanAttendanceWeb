@@ -57,8 +57,8 @@ func main() {
 	authenticatedApiRoute.Use(middleware.Authenticate)
 	authenticatedApiRoute.HandleFunc("/check-in", api.CheckIn).Methods("POST")
 	authenticatedApiRoute.HandleFunc("/create-user", api.CreateUser).Methods("POST")
-	authenticatedApiRoute.HandleFunc("/logout", api.LogOut).Methods("POST")
 	authenticatedApiRoute.HandleFunc("/upload-roster", apiAdmin.UploadRoster).Methods("POST")
+	authenticatedApiRoute.HandleFunc("/logout", api.LogOut).Methods("POST")
 
 	downloadsRoute := router.PathPrefix("/downloads").Subrouter()
 	downloadsRoute.HandleFunc("/export-database", downloads.ExportDatabase)

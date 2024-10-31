@@ -4,7 +4,7 @@ body {
 #check-in-success{
     z-index: 10;
 }
-#admin-button-div{
+#button-div{
     z-index: 0;
 }
 #number-input::-webkit-inner-spin-button {
