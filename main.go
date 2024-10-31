@@ -67,7 +67,7 @@ func main() {
 	)
 
 	log.Info().Msgf("Starting server.")
-	err := http.ListenAndServe(utils.GetPort(), router)
+	err := http.ListenAndServe(":8081", router)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to start server.")
 		return
