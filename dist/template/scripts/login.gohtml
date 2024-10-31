@@ -1,4 +1,4 @@
-{{define "pin-script"}}
+{{define "login-script"}}
     <script>
         $(document).ready(function () {
             const pin = $('#pin-input');
@@ -6,7 +6,7 @@
                 e.preventDefault();
 
                 $.ajax({
-                    url: '/api/check-pin',
+                    url: '/api/login',
                     method: 'POST',
                     data: JSON.stringify({
                         Pin: pin.val()

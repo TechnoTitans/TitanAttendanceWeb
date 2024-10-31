@@ -4,6 +4,7 @@ import (
 	"TitanAttendance/src/auth"
 	"TitanAttendance/src/users"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"github.com/xuri/excelize/v2"
 	"net/http"
 )
@@ -31,8 +32,9 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
+			return
 		}
 	}()
 
@@ -41,7 +43,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			return
+			log.Error().Err(err).Msg("error writing response")
 		}
 		return
 	}
@@ -52,7 +54,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -62,7 +64,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -75,7 +77,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -85,7 +87,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -98,7 +100,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -108,7 +110,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -121,7 +123,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			_, err = w.Write([]byte(err.Error()))
 			if err != nil {
-				return
+				log.Error().Err(err).Msg("error writing response")
 			}
 			return
 		}
@@ -132,7 +134,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err = w.Write([]byte(err.Error()))
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("error writing response")
 				}
 				return
 			}
@@ -141,7 +143,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err = w.Write([]byte(err.Error()))
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("error writing response")
 				}
 				return
 			}
@@ -153,7 +155,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err = w.Write([]byte(err.Error()))
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("error writing response")
 				}
 				return
 			}
@@ -165,7 +167,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))
 		if err != nil {
-			return
+			log.Error().Err(err).Msg("error writing response")
 		}
 		return
 	}
@@ -178,6 +180,6 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	err = xlxsFile.Write(w)
 	if err != nil {
-		return
+		log.Error().Err(err).Msg("error writing response")
 	}
 }

@@ -2,11 +2,12 @@ package main
 
 import (
 	"TitanAttendance/src/api"
+	apiAdmin "TitanAttendance/src/api/admin"
 	"TitanAttendance/src/database"
 	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
 	"TitanAttendance/src/render"
-	"TitanAttendance/src/render/admin"
+	renderAdmin "TitanAttendance/src/render/admin"
 	"TitanAttendance/src/users"
 	"TitanAttendance/src/utils"
 	"net/http"
@@ -40,22 +41,24 @@ func main() {
 	}
 
 	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/pin", render.CheckPin)
+	router.HandleFunc("/login", render.Login)
 	router.NotFoundHandler = http.HandlerFunc(render.Error404)
 
 	authenticatedRoute := router.NewRoute().Subrouter()
 	authenticatedRoute.Use(middleware.Authenticate)
 	authenticatedRoute.HandleFunc("/", render.CheckIn)
 	authenticatedRoute.HandleFunc("/create-user/{id}", render.CreateUser)
-	authenticatedRoute.HandleFunc("/qr", admin.QRCode)
+	authenticatedRoute.HandleFunc("/qr", renderAdmin.QRCode)
 
 	apiRoute := router.PathPrefix("/api").Subrouter()
-	apiRoute.HandleFunc("/check-pin", api.CheckPin).Methods("POST", "OPTIONS")
+	apiRoute.HandleFunc("/login", api.LogIn).Methods("POST")
 
 	authenticatedApiRoute := apiRoute.NewRoute().Subrouter()
 	authenticatedApiRoute.Use(middleware.Authenticate)
-	authenticatedApiRoute.HandleFunc("/check-in", api.CheckIn).Methods("POST", "OPTIONS")
-	authenticatedApiRoute.HandleFunc("/create-user", api.CreateUser).Methods("POST", "OPTIONS")
+	authenticatedApiRoute.HandleFunc("/check-in", api.CheckIn).Methods("POST")
+	authenticatedApiRoute.HandleFunc("/create-user", api.CreateUser).Methods("POST")
+	authenticatedApiRoute.HandleFunc("/logout", api.LogOut).Methods("POST")
+	authenticatedApiRoute.HandleFunc("/upload-roster", apiAdmin.UploadRoster).Methods("POST")
 
 	downloadsRoute := router.PathPrefix("/downloads").Subrouter()
 	downloadsRoute.HandleFunc("/export-database", downloads.ExportDatabase)

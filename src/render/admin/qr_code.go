@@ -32,7 +32,7 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newPin := auth.CreateUserPin()
+	newPin := auth.GetPin()
 
 	err = t.ExecuteTemplate(w, "qrcode", struct {
 		QRCode string

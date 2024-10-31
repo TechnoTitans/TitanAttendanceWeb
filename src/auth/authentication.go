@@ -56,7 +56,7 @@ func (a *UserAccess) IsAllowed() bool {
 	return (a.IsAdmin() || a.IsPlain()) && a.UserLevel != none
 }
 
-func CreateUserPin() string {
+func GetPin() string {
 	if HasPasswordExpired() {
 		userPin = strconv.Itoa(rand.Intn(900000) + 100000)
 		PasswordCreationTime = time.Now()

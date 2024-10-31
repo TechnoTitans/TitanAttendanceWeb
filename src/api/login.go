@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func CheckPin(w http.ResponseWriter, r *http.Request) {
+func LogIn(w http.ResponseWriter, r *http.Request) {
 	body := r.Body
 	defer func(body io.ReadCloser) {
 		err := body.Close()

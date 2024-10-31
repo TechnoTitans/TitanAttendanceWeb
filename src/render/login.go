@@ -8,12 +8,12 @@ import (
 	"net/http"
 )
 
-func CheckPin(w http.ResponseWriter, r *http.Request) {
+func Login(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(
 		"./dist/template/global/head.gohtml",
-		"./dist/template/pin.gohtml",
+		"./dist/template/login.gohtml",
 		"./dist/template/global/scripts.gohtml",
-		"./dist/template/scripts/pin.gohtml",
+		"./dist/template/scripts/login.gohtml",
 	)
 	if err != nil {
 		panic(err)
