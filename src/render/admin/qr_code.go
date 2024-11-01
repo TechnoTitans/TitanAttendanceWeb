@@ -10,8 +10,9 @@ import (
 func QRCode(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(
 		"./dist/template/global/head.gohtml",
-		"./dist/template/qr-code.gohtml",
 		"./dist/template/global/scripts.gohtml",
+		"./dist/template/global/nav.gohtml",
+		"./dist/template/qr-code.gohtml",
 	)
 	if err != nil {
 		panic(err)
@@ -35,11 +36,13 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 	newPin := auth.GetPin()
 
 	err = t.ExecuteTemplate(w, "qrcode", struct {
-		QRCode string
-		Pin    string
+		QRCode  string
+		Pin     string
+		IsAdmin bool
 	}{
-		QRCode: utils.CreateQRCode(&newPin),
-		Pin:    newPin,
+		QRCode:  utils.CreateQRCode(&newPin),
+		Pin:     newPin,
+		IsAdmin: userAccess.IsAdmin(),
 	})
 	if err != nil {
 		panic(err)

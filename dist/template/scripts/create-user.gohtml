@@ -1,35 +1,40 @@
 {{define "create-user-script"}}
     <script>
-        $(document).ready(function () {
-            $('form').submit(function (e) {
-                e.preventDefault();
-                const nameInput = $('#name-input');
+        function postCreateUserForm() {
+            return {
+                formData: {
+                    student_id: {{.StudentID}},
+                    name: ''
+                },
+                disableForm: false,
 
-                $.ajax({
-                    url: '/api/create-user',
-                    method: 'POST',
-                    data: JSON.stringify({
-                        student_id: {{.StudentID}},
-                        name: nameInput.val()
-                    }),
-                    success: function (data) {
-                        $("#create-user-success").removeClass("hidden");
-                        setTimeout(() => {
-                            window.location.replace("/");
-                        }, 3000);
-                    },
-                    error: function (err) {
-                        switch (err.responseText) {
-                            default:
-                                console.log(err);
-                                break;
-                        }
-
-                    }
-                }).always(function(message) {
-                    nameInput.val('');
-                })
-            });
-        });
+                submitData() {
+                    fetch('/api/create-user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    })
+                        .then(resp => {
+                            if (resp.ok) {
+                                this.disableForm = true;
+                                toast('Created User Successfully', {
+                                    type: 'success',
+                                    position: 'top-center'
+                                });
+                                setTimeout(() => {
+                                    window.location.replace("/");
+                                }, 3000);
+                            } else {
+                                console.log(resp);
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                }
+            }
+        }
     </script>
 {{end}}

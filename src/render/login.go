@@ -11,8 +11,8 @@ import (
 func Login(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(
 		"./dist/template/global/head.gohtml",
-		"./dist/template/login.gohtml",
 		"./dist/template/global/scripts.gohtml",
+		"./dist/template/login.gohtml",
 		"./dist/template/scripts/login.gohtml",
 		"./dist/template/scripts/pines/toast.gohtml",
 	)
