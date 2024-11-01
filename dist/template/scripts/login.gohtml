@@ -5,8 +5,11 @@
                 formData: {
                     Pin: ''
                 },
+                disableForm: false,
 
                 submitData() {
+                    this.disableForm = true;
+
                     fetch('/api/login', {
                         method: 'POST',
                         headers: {
@@ -21,7 +24,10 @@
                             } else if (resp.status === 401) {
                                 resp.text().then(text => {
                                     if (text === 'invalid pin') {
-                                        toast('Invalid Pin', {type: 'danger', position: 'top-center'});
+                                        toast('Invalid Pin', {
+                                            type: 'danger',
+                                            position: 'top-center'
+                                        });
                                     }
                                 });
                             } else {
@@ -30,6 +36,9 @@
                         })
                         .catch(err => {
                             console.log(err);
+                        })
+                        .finally(() => {
+                            this.disableForm = false;
                         });
                 }
             }

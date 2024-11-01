@@ -3,12 +3,14 @@
         function postCreateUserForm() {
             return {
                 formData: {
-                    student_id: {{.StudentID}},
+                    student_id: '{{.StudentID}}',
                     name: ''
                 },
                 disableForm: false,
 
                 submitData() {
+                    this.disableForm = true;
+
                     fetch('/api/create-user', {
                         method: 'POST',
                         headers: {
@@ -18,7 +20,6 @@
                     })
                         .then(resp => {
                             if (resp.ok) {
-                                this.disableForm = true;
                                 toast('Created User Successfully', {
                                     type: 'success',
                                     position: 'top-center'
@@ -32,7 +33,7 @@
                         })
                         .catch(err => {
                             console.log(err);
-                        });
+                        })
                 }
             }
         }
