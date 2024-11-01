@@ -5,9 +5,11 @@ import (
 	"TitanAttendance/src/utils"
 	"context"
 	"encoding/csv"
+	"errors"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -19,9 +21,15 @@ func AddNewStudent(user User) error {
 		return err
 	}
 
+	if user.IDExists() {
+		return errors.New("student ID already exists")
+	}
+
 	conn := database.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
+
+	user.Name = strings.Join(strings.Fields(user.Name), " ")
 
 	_, err = conn.Database(utils.DBName).Collection("students").InsertOne(ctx, user)
 	if err == nil {
@@ -45,7 +53,6 @@ func GetStudents() []User {
 		log.Error().Err(err).Msg("Failed to get students.")
 		return nil
 	}
-
 	defer func(cur *mongo.Cursor) {
 		err = cur.Close(ctx)
 		if err != nil {
@@ -127,8 +134,8 @@ func AddStudentsFromCSV(filePath string, method utils.CSVUploadMethod) {
 	failedToAdd := 0
 	for _, row := range rows {
 		user := User{
-			Name:      row[0],
-			StudentID: row[1],
+			Name: row[0],
+			ID:   row[1],
 		}
 
 		err = AddNewStudent(user)

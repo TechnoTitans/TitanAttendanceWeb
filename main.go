@@ -7,7 +7,6 @@ import (
 	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
 	"TitanAttendance/src/render"
-	renderAdmin "TitanAttendance/src/render/admin"
 	"TitanAttendance/src/users"
 	"TitanAttendance/src/utils"
 	"net/http"
@@ -49,7 +48,7 @@ func main() {
 	authenticatedRoute.Use(middleware.Authenticate)
 	authenticatedRoute.HandleFunc("/", render.CheckIn)
 	authenticatedRoute.HandleFunc("/create-user/{id}", render.CreateUser)
-	authenticatedRoute.HandleFunc("/qr", renderAdmin.QRCode)
+	authenticatedRoute.HandleFunc("/qr", render.QRCode)
 
 	apiRoute := router.PathPrefix("/api").Subrouter()
 	apiRoute.HandleFunc("/login", api.LogIn).Methods("POST")

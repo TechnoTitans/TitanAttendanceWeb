@@ -8,12 +8,14 @@ import (
 )
 
 type AbsentStudent struct {
-	StudentName string `json:"student_name"`
+	ID   string `json:"student_id"`
+	Name string `json:"student_name"`
 }
 
 type PresentStudent struct {
-	StudentName string `json:"student_name"`
-	Time        string `json:"time"`
+	ID   string `json:"student_id"`
+	Name string `json:"student_name"`
+	Time string `json:"time"`
 }
 
 type Meeting struct {
@@ -21,6 +23,8 @@ type Meeting struct {
 	Absent  []AbsentStudent  `json:"absent"`
 	Present []PresentStudent `json:"present"`
 }
+
+var CurrentMeeting Meeting
 
 func ClearAllMeetings() error {
 	conn := database.GetConn()

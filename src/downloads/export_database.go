@@ -129,7 +129,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for i, present := range meeting.Present {
-			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("B%d", i+3), present.StudentName)
+			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("B%d", i+3), present.Name)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err = w.Write([]byte(err.Error()))
@@ -150,7 +150,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 		}
 
 		for i, absent := range meeting.Absent {
-			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("E%d", i+3), absent.StudentName)
+			err = xlxsFile.SetCellValue(meeting.Date, fmt.Sprintf("E%d", i+3), absent.Name)
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				_, err = w.Write([]byte(err.Error()))
