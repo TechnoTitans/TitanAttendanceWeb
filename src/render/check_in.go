@@ -14,7 +14,6 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 		"./dist/template/check-in.gohtml",
 		"./dist/template/global/scripts.gohtml",
 		"./dist/template/scripts/check-in.gohtml",
-		"./dist/template/scripts/admin/buttons.gohtml",
 	)
 	if err != nil {
 		panic(err)
