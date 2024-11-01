@@ -1,32 +1,38 @@
 {{define "login-script"}}
     <script>
-        $(document).ready(function () {
-            const pin = $('#pin-input');
-            $('form').submit(function (e) {
-                e.preventDefault();
+        function postLoginForm() {
+            return {
+                formData: {
+                    Pin: ''
+                },
 
-                $.ajax({
-                    url: '/api/login',
-                    method: 'POST',
-                    data: JSON.stringify({
-                        Pin: pin.val()
-                    }),
-                    success: function(data) {
-                        window.location.reload()
-                    },
-                    error: function(err) {
-                        switch (err.responseText) {
-                            case "invalid pin":
-                                console.log('invalid pin');
-                                break;
-                            default:
-                                console.log(err);
-                                break;
-                        }
-                        pin.val('')
-                    }
-                })
-            });
-        });
+                submitData() {
+                    fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.formData)
+                    })
+                        .then(resp => {
+                            this.formData.Pin = '';
+                            if (resp.ok) {
+                                window.location.reload()
+                            } else if (resp.status === 401) {
+                                resp.text().then(text => {
+                                    if (text === 'invalid pin') {
+                                        toast('Invalid Pin', {type: 'danger', position: 'top-center'});
+                                    }
+                                });
+                            } else {
+                                console.log(resp);
+                            }
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                }
+            }
+        }
     </script>
 {{end}}

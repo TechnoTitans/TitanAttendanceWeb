@@ -1,100 +1,82 @@
 {{define "check-in"}}
-<!DOCTYPE html>
-<html lang="en">
-{{ template "head" .}}
+    <!DOCTYPE html>
+    <html lang="en">
+    {{ template "head" .}}
 
-<body class="h-full text-white px-50">
-    <div id="check-in-success" class="hidden popup absolute w-full flex bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-green-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-500 stroke-current" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <div class="ml-3">
-            <div class="font-bold text-left text-gray-50">You have been marked present!</div>
-        </div>
-    </div>
+    <body class="h-full text-white px-50" x-data>
+    {{ template "scripts" .}}
+    {{ template "check-in-script" .}}
+
+    <div class="relative space-y-5" x-data="{
+            title: 'Title',
+            description: '',
+            type: 'default',
+            position: 'top-center',
+            expanded: false,
+            popToast (custom){
+                let html = '';
+                if(typeof custom != 'undefined'){
+                    html = custom;
+                }
+                toast(this.title, { description: this.description, type: this.type, position: this.position, html: html })
+            }
+        }" x-init="
+            window.toast = function(message, options = {}){
+                let description = '';
+                let type = 'default';
+                let position = 'top-center';
+                let html = '';
+                if(typeof options.description != 'undefined') description = options.description;
+                if(typeof options.type != 'undefined') type = options.type;
+                if(typeof options.position != 'undefined') position = options.position;
+                if(typeof options.html != 'undefined') html = options.html;
+
+                window.dispatchEvent(new CustomEvent('toast-show', { detail : { type: type, message: message, description: description, position : position, html: html }}));
+            }
+        "></div>
+
     <div id="button-div" x-data class="absolute mx-5">
         {{if .IsAdmin}}
-        <button @click="window.location.href = '/qr'" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                QR Code
-            </span>
-        </button>
-        <button @click="window.location.replace('/downloads/export-database')" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Export
-            </span>
-        </button>
-        <button id="qr-redirect" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Upload
-            </span>
-        </button>
+            <button @click="window.location.href = '/qr'" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
+                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> QR Code </span>
+            </button>
+            <button @click="window.location.replace('/downloads/export-database')" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
+                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> Export </span>
+            </button>
+            <button id="qr-redirect" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
+                <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> Upload </span>
+            </button>
         {{end}}
         <button id="logout" class="relative inline-flex items-center justify-center p-0.5 mt-5 me-2 overflow-hidden text-sm font-medium rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                Logout
-            </span>
+            <span @click="postLogout()" class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> Logout </span>
         </button>
     </div>
-
-    <div id="warning-modal" class="hidden fixed z-10 inset-0 overflow-y-auto">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen"></span>
-            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-                <div class="sm:flex sm:items-start">
-                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10">
-                        <svg viewBox="0 0 24 24" class="w-8 h-8 text-red-500 stroke-current" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 8V12V8ZM12 16H12.01H12ZM21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900"> Student Not Found </h3>
-                        <div class="mt-2">
-                            <p class="text-sm leading-5 text-gray-500"> A student with that ID wasn't found. </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
-                    <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
-                        <button id="register-account-button" type="button" class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-blue-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-blue-500 focus:outline-none focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"> Register </button>
-                    </span>
-                    <span class="mt-3 flex w-full rounded-md shadow-sm sm:mt-0 sm:w-auto">
-                        <button id="warning-dismiss-button" type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 px-4 py-2 bg-white text-base leading-6 font-medium text-gray-700 shadow-sm hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition ease-in-out duration-150 sm:text-sm sm:leading-5"> Dismiss </button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="flex min-h-full flex-col justify-center px-6 py-24 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto w-28" src="/files/assets/img/logo.webp" alt="TT LOGO">
             <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">Sign in for Attendance</h2>
         </div>
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div x-data="{ modalOpen: false, last_student_id: '' }" @keydown.escape.window="modalOpen = false" :class="{ 'z-40': modalOpen }" class="relative w-auto h-auto">
             <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                <form class="max-w-sm mx-auto">
-                    <div>
-                        <label for="number-input" class="block mb-2 text-sm font-medium text-white">Enter School ID:</label>
-                        <input inputmode="numeric" type="number" id="number-input" aria-describedby="helper-text-explanation" class="border border-gray-300 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" required />
-                    </div>
-                    <div>
-                        <button type="submit" class="flex w-full mt-10 justify-center rounded-lg bg-indigo-600 px-1 py-1 text-sm font-semibold leading-6 group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800 ">
-                        <span class="relative px-1 py-1 w-full transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0">
-                        Sign In
-                            </span>
-                        </button>
-                    </div>
-                </form>
+                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+                    <form x-data="postCheckInForm()" @submit.prevent="submitData()" class="max-w-sm mx-auto">
+                        {{ template "pines-new-user-modal" .}}
+                        <div>
+                            <label for="number-input" class="block mb-2 text-sm font-medium text-white">Enter School ID:</label>
+                            <input x-model="formData.student_id" inputmode="numeric" type="number" id="number-input" aria-describedby="helper-text-explanation" class="border border-gray-300 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" required />
+                        </div>
+                        <div>
+                            <button type="submit" class="flex w-full mt-10 justify-center rounded-lg bg-indigo-600 px-1 py-1 text-sm font-semibold leading-6 group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800 ">
+                                <span class="relative px-1 py-1 w-full transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> Sign In </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    {{ template "scripts" .}}
-    {{ template "check-in-script" .}}
-</body>
+    </body>
+    {{ template "pines-toast" .}}
 
-</html>
+    </html>
 {{end}}

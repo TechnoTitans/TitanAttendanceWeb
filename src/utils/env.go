@@ -1,6 +1,9 @@
 package utils
 
-import "os"
+import (
+	"github.com/rs/zerolog/log"
+	"os"
+)
 
 const (
 	DBName = "titanattendance"
@@ -10,6 +13,12 @@ const (
 var (
 	adminPassword = os.Getenv("ADMIN_PASSWORD")
 )
+
+func init() {
+	if adminPassword == "" {
+		log.Fatal().Msg("ADMIN_PASSWORD environment variable not set.")
+	}
+}
 
 func GetAdminPassword() string {
 	return adminPassword

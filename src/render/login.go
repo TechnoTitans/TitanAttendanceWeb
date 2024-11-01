@@ -14,6 +14,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		"./dist/template/login.gohtml",
 		"./dist/template/global/scripts.gohtml",
 		"./dist/template/scripts/login.gohtml",
+		"./dist/template/scripts/pines/toast.gohtml",
 	)
 	if err != nil {
 		panic(err)
