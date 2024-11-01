@@ -3,7 +3,7 @@
     <html lang="en">
     {{ template "head" .}}
 
-    <body class="h-full text-white px-50">
+    <body class="h-full px-50">
     {{ template "scripts" .}}
     {{ template "check-in-script" .}}
     {{ template "nav" .}}
@@ -34,7 +34,7 @@
                 window.dispatchEvent(new CustomEvent('toast-show', { detail : { type: type, message: message, description: description, position : position, html: html }}));
             }
         "></div>
-    <div class="flex min-h-full flex-col justify-center px-6 py-24 lg:px-8">
+    <div class="flex min-h-full text-white flex-col justify-center px-6 py-24 lg:px-8">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
             <img class="mx-auto w-28" src="/files/assets/img/logo.webp" alt="TT LOGO">
             <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight">Sign in for Attendance</h2>

@@ -2,20 +2,24 @@
     <!DOCTYPE html>
     <html lang="en">
         {{ template "head" .}}
-        <body class="text-white">
+        <body>
+            {{ template "scripts" .}}
             {{ template "nav" .}}
-            <div>
-                <h1 class="text-center mt-7 text-5xl">Attendance</h1>
+            <div class="text-white">
+                <div>
+                    <h1 class="text-center mt-2 text-5xl">Attendance</h1>
+                </div>
+                <div class="flex flex-col h-full m-full justify-center pt-12 mx-auto max-w-sm">
+                    <div class="bg-gradient-to-br from-purple-600 to-blue-500 rounded-lg">
+                        <img x-data @click="document.documentElement.requestFullscreen()" src="data:image/png;base64,{{.QRCode}}" alt="QR Code" class="relative px-2 py-2 rounded-lg"/>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-center mt-10 text-6xl">OR</h1>
+                    <h1 class="text-center mt-10 text-3xl">Visit <b>spira1.com</b> and enter the pin:</h1>
+                    <h2 class="text-center mt-4 text-4xl"><b>{{.Pin}}</b></h2>
+                </div>
             </div>
-            <div class="flex flex-col h-full m-full justify-center pt-12 mx-auto max-w-sm">
-                <img src="data:image/png;base64,{{.QRCode}}" alt="QR Code" />
-            </div>
-            <div>
-                <h1 class="text-center mt-10 text-6xl">OR</h1>
-                <h1 class="text-center mt-10 text-3xl">Visit <b>spira1.com</b> and enter the pin:</h1>
-                <h2 class="text-center mt-4 text-4xl"><b>{{.Pin}}</b></h2>
-            </div>
-            {{template "scripts" .}}
         </body>
     </html>
 {{end}}

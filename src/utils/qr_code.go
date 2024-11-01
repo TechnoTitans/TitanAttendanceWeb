@@ -56,9 +56,9 @@ func CreateQRCode(pin *string) string {
 	wr := nopCloser{Writer: buf}
 	w2 := standard.NewWithWriter(
 		wr,
+		standard.WithBgTransparent(),
 		standard.WithQRWidth(10),
 		standard.WithBorderWidth(3),
-		standard.WithBgTransparent(),
 		//standard.WithLogoImage(ttImg),
 		//standard.WithLogoSizeMultiplier(0),
 	)
