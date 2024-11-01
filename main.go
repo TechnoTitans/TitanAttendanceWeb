@@ -19,6 +19,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+//go:generate npm run build
 func main() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{
 		Out:        os.Stdout,

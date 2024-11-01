@@ -4,3 +4,4 @@
 /.idea/TitanAttendanceWeb.iml
 /.vscode
 __debug_*
+/node_modules/
