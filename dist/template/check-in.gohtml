@@ -4,12 +4,12 @@
 {{ template "head" .}}
 
 <body class="h-full text-white px-50">
-    <div id="check-in-success" class="hidden absolute w-full flex bg-neutral-200 dark:bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-green-500">
+    <div id="check-in-success" class="hidden popup absolute w-full flex bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-green-500">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-500 stroke-current" fill="none" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
         </svg>
         <div class="ml-3">
-            <div class="font-bold text-left text-black dark:text-gray-50">You have been marked present!</div>
+            <div class="font-bold text-left text-gray-50">You have been marked present!</div>
         </div>
     </div>
     <div id="button-div" class="absolute mx-5">
@@ -78,7 +78,7 @@
             <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
                 <form class="max-w-sm mx-auto">
                     <div>
-                        <label for="number-input" class="block mb-2 text-sm font-medium text-white-900 dark:text-white">Enter School ID:</label>
+                        <label for="number-input" class="block mb-2 text-sm font-medium text-white">Enter School ID:</label>
                         <input inputmode="numeric" type="number" id="number-input" aria-describedby="helper-text-explanation" class="border border-gray-300 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" required />
                     </div>
                     <div>
