@@ -6,8 +6,6 @@ import (
 	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
 	"TitanAttendance/src/render"
-	"TitanAttendance/src/users"
-	"TitanAttendance/src/utils"
 	"net/http"
 	"os"
 	"time"
@@ -26,18 +24,6 @@ func main() {
 
 	database.Connect(3 * time.Second)
 	defer database.Disconnect()
-
-	if len(os.Args) >= 2 {
-		method, err := utils.AskForNewCSVMethod()
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get CSV upload method.")
-			<-time.After(5 * time.Second)
-			return
-		}
-		users.AddStudentsFromCSV(os.Args[1], method)
-		<-time.After(5 * time.Second)
-		return
-	}
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/login", render.Login)

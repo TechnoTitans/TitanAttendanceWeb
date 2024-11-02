@@ -10,29 +10,19 @@
                         disableUpload: false,
 
                         submitData() {
-                            console.log(this.formData.file);
                             this.disableUpload = true;
                             fetch('/api/upload', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW',
-                                    'Content-Disposition': 'form-data; name="file"; filename="file.csv"',
-                                },
                                 body: this.formData.file
                             }).then(
                                 resp => {
-                                    if (resp.ok) {
-                                        console.log(resp)
-                                        // toast('Uploaded Successfully', {
-                                        //     type: 'success',
-                                        //     position: 'top-center'
-                                        // });
-                                    } else {
-                                        // toast('Failed to upload', {
-                                        //     type: 'danger',
-                                        //     position: 'top-center'
-                                        // });
-                                    }
+                                    resp.text().then(text => {
+                                        toast(text, {
+                                            type: 'info',
+                                            position: 'top-center'
+                                        });
+                                    });
+
                                 }
                             ).catch(err => {
                                 console.log(err);
@@ -62,4 +52,32 @@
             <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-gray-900 rounded-md group-hover:bg-opacity-0"> Logout </span>
         </button>
     </div>
+
+    <div class="relative space-y-5" x-data="{
+            title: 'Title',
+            description: '',
+            type: 'default',
+            position: 'top-center',
+            expanded: false,
+            popToast (custom){
+                let html = '';
+                if(typeof custom != 'undefined'){
+                    html = custom;
+                }
+                toast(this.title, { description: this.description, type: this.type, position: this.position, html: html })
+            }
+        }" x-init="
+            window.toast = function(message, options = {}){
+                let description = '';
+                let type = 'default';
+                let position = 'top-center';
+                let html = '';
+                if(typeof options.description != 'undefined') description = options.description;
+                if(typeof options.type != 'undefined') type = options.type;
+                if(typeof options.position != 'undefined') position = options.position;
+                if(typeof options.html != 'undefined') html = options.html;
+
+                window.dispatchEvent(new CustomEvent('toast-show', { detail : { type: type, message: message, description: description, position : position, html: html }}));
+            }
+        "></div>
 {{end}}
