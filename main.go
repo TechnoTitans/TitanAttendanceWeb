@@ -2,7 +2,6 @@ package main
 
 import (
 	"TitanAttendance/src/api"
-	apiAdmin "TitanAttendance/src/api/admin"
 	"TitanAttendance/src/database"
 	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
@@ -48,6 +47,7 @@ func main() {
 	authenticatedRoute.Use(middleware.Authenticate)
 	authenticatedRoute.HandleFunc("/", render.CheckIn)
 	authenticatedRoute.HandleFunc("/create-user/{id}", render.CreateUser)
+	authenticatedRoute.HandleFunc("/upload", render.Upload)
 	authenticatedRoute.HandleFunc("/qr", render.QRCode)
 
 	apiRoute := router.PathPrefix("/api").Subrouter()
@@ -57,7 +57,7 @@ func main() {
 	authenticatedApiRoute.Use(middleware.Authenticate)
 	authenticatedApiRoute.HandleFunc("/check-in", api.CheckIn).Methods("POST")
 	authenticatedApiRoute.HandleFunc("/create-user", api.CreateUser).Methods("POST")
-	authenticatedApiRoute.HandleFunc("/upload-roster", apiAdmin.UploadRoster).Methods("POST")
+	authenticatedApiRoute.HandleFunc("/upload", api.Upload).Methods("POST")
 	authenticatedApiRoute.HandleFunc("/logout", api.LogOut).Methods("POST")
 
 	downloadsRoute := router.PathPrefix("/downloads").Subrouter()

@@ -1,0 +1,50 @@
+{{define "check-in-script"}}
+<script>
+    function postUserCSV() {
+        return {
+            formData: {
+                csv_file: ''
+            },
+            last_student_id: '',
+            modalOpen: false,
+            disableForm: false,
+
+            submitData() {
+                this.disableForm = true;
+                this.last_student_id = this.formData.student_id;
+
+                fetch('/api/check-in', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.formData)
+                })
+                    .then(resp => {
+                        if (resp.ok) {
+                            toast('Checked In Successfully', {
+                                type: 'success',
+                                position: 'top-center'
+                            });
+                        } else if (resp.status === 400) {
+                            resp.text().then(text => {
+                                if (text === 'student ID does not exist') {
+                                    console.log('Student ID does not exist');
+                                    this.modalOpen = true;
+                                }
+                            });
+                        } else {
+                            console.log(resp);
+                        }
+                        this.formData.student_id = '';
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    }).finally(() => {
+                        this.disableForm = false;
+                });
+            }
+        }
+    }
+</script>
+{{end}}

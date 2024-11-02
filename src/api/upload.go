@@ -1,11 +1,11 @@
-package admin
+package api
 
 import (
 	"TitanAttendance/src/auth"
 	"net/http"
 )
 
-func UploadRoster(w http.ResponseWriter, r *http.Request) {
+func Upload(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("TitanAttendancePin")
 	if err != nil {
 		return
