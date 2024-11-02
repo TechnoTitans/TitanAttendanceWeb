@@ -81,11 +81,12 @@ func ClearAllStudents() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := conn.Database(utils.DBName).Collection("students").DeleteMany(ctx, nil)
+	_, err := conn.Database(utils.DBName).Collection("students").DeleteMany(ctx, map[string]interface{}{})
 	if err != nil {
 		return err
 	}
 
 	users = []User{}
+	log.Info().Msg("Cleared all students.")
 	return nil
 }

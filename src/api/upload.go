@@ -40,7 +40,11 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	reader := csv.NewReader(r.Body)
 	rows, err := reader.ReadAll()
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to read file.")
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err = w.Write([]byte(err.Error()))
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to write response.")
+		}
 		return
 	}
 
