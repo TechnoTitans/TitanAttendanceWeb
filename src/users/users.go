@@ -40,6 +40,7 @@ func AddNewStudent(user User) error {
 		users = append(users, user)
 	}
 
+	log.Info().Msgf("Added %s as a student.", user.Name)
 	return err
 }
 
