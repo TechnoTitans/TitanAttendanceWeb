@@ -20,28 +20,33 @@
                     },
                     body: JSON.stringify(this.formData)
                 })
-                    .then(resp => {
-                        if (resp.ok) {
-                            toast('Checked In Successfully', {
-                                type: 'success',
-                                position: 'top-center'
-                            });
-                        } else if (resp.status === 400) {
-                            resp.text().then(text => {
-                                if (text === 'student ID does not exist') {
-                                    console.log('Student ID does not exist');
-                                    this.modalOpen = true;
-                                }
-                            });
-                        } else {
-                            console.log(resp);
-                        }
-                        this.formData.student_id = '';
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    }).finally(() => {
-                        this.disableForm = false;
+                .then(resp => {
+                    if (resp.ok) {
+                        toast('Checked In Successfully', {
+                            type: 'success',
+                            position: 'top-center'
+                        });
+                    } else if (resp.status === 400) {
+                        resp.text().then(text => {
+                            if (text === 'student ID does not exist') {
+                                this.modalOpen = true;
+                            } else if (text === 'already checked in') {
+                                toast('You\'re already checked in', {
+                                    type: 'danger',
+                                    position: 'top-center'
+                                });
+
+                            }
+                        });
+                    } else {
+                        console.log(resp);
+                    }
+                    this.formData.student_id = '';
+                })
+                .catch(err => {
+                    console.log(err);
+                }).finally(() => {
+                    this.disableForm = false;
                 });
             }
         }

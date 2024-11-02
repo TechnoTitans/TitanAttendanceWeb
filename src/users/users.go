@@ -8,12 +8,15 @@ import (
 	"errors"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/v2/mongo"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"os"
 	"strings"
 	"time"
 )
 
 var users []User
+var nameCaps = cases.Title(language.English, cases.Compact)
 
 func AddNewStudent(user User) error {
 	err := user.IsValid()
@@ -25,11 +28,12 @@ func AddNewStudent(user User) error {
 		return errors.New("student ID already exists")
 	}
 
+	user.Name = strings.Join(strings.Fields(user.Name), " ")
+	user.Name = nameCaps.String(user.Name)
+
 	conn := database.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
-	user.Name = strings.Join(strings.Fields(user.Name), " ")
 
 	_, err = conn.Database(utils.DBName).Collection("students").InsertOne(ctx, user)
 	if err == nil {

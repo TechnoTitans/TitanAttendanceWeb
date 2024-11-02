@@ -56,10 +56,21 @@ func (u *User) IsPresent() bool {
 	return false
 }
 
+func (u *User) getFullUserData() bool {
+	for _, v := range GetStudents() {
+		if v.ID == u.ID {
+			u.Name = v.Name
+			return true
+		}
+	}
+	return false
+}
+
 func (u *User) CheckIn() error {
 	if !u.IDExists() {
 		return errors.New("student ID does not exist")
 	}
+	u.getFullUserData()
 
 	conn := database.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -91,6 +102,13 @@ func (u *User) CheckIn() error {
 		if err != nil {
 			return err
 		}
+	} else {
+		var meeting Meeting
+		err := findResult.Decode(&meeting)
+		if err != nil {
+			return err
+		}
+		CurrentMeeting = meeting
 	}
 
 	if u.IsPresent() {
