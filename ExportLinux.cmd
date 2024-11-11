@@ -5,3 +5,4 @@ set GOOS=linux
 set GOARCH=amd64
 go generate
 go build -o TitanAttendance -trimpath -ldflags="-s -w"
+pause
