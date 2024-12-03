@@ -40,7 +40,7 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 		Pin     string
 		IsAdmin bool
 	}{
-		QRCode:  utils.CreateQRCode(&newPin, auth.HasPasswordExpired()),
+		QRCode:  utils.CreateQRCode(&newPin).Base64,
 		Pin:     newPin,
 		IsAdmin: userAccess.IsAdmin(),
 	})

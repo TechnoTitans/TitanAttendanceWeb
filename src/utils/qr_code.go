@@ -30,11 +30,16 @@ func ByteArrayToImage(imageData []byte) (image.Image, error) {
 	return decode, nil
 }
 
-var qrCodeB64 string
+type QRCode struct {
+	Base64 string
+	Pin    string
+}
 
-func CreateQRCode(pin *string, generateNew bool) string {
-	if !generateNew && qrCodeB64 != "" {
-		return qrCodeB64
+var cachedQRCode QRCode
+
+func CreateQRCode(pin *string) QRCode {
+	if cachedQRCode.Pin == *pin && cachedQRCode.Base64 != "" {
+		return cachedQRCode
 	}
 
 	qrc, err := qrcode.NewWith(
@@ -44,7 +49,7 @@ func CreateQRCode(pin *string, generateNew bool) string {
 	)
 	if err != nil {
 		fmt.Printf("could not generate QRCode: %v", err)
-		return ""
+		return QRCode{}
 	}
 
 	//ttImg, err := ByteArrayToImage(assets.TTLogo)
@@ -67,6 +72,9 @@ func CreateQRCode(pin *string, generateNew bool) string {
 		log.Error().Err(err).Msg("Failed to save QR code.")
 	}
 
-	qrCodeB64 = base64.StdEncoding.EncodeToString(buf.Bytes())
-	return qrCodeB64
+	cachedQRCode = QRCode{
+		Base64: base64.StdEncoding.EncodeToString(buf.Bytes()),
+		Pin:    *pin,
+	}
+	return cachedQRCode
 }
