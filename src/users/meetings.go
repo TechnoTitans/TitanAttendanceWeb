@@ -1,7 +1,7 @@
 package users
 
 import (
-	"TitanAttendance/src/database"
+	"TitanAttendance/src/datastore"
 	"TitanAttendance/src/utils"
 	"context"
 	"github.com/rs/zerolog/log"
@@ -28,7 +28,7 @@ type Meeting struct {
 var CurrentMeeting Meeting
 
 func ClearAllMeetings() error {
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -42,7 +42,7 @@ func ClearAllMeetings() error {
 }
 
 func GetAllMeetings() ([]Meeting, error) {
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

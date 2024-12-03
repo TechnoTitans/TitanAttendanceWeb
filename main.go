@@ -2,7 +2,7 @@ package main
 
 import (
 	"TitanAttendance/src/api"
-	"TitanAttendance/src/database"
+	"TitanAttendance/src/datastore"
 	"TitanAttendance/src/downloads"
 	"TitanAttendance/src/middleware"
 	"TitanAttendance/src/render"
@@ -22,8 +22,8 @@ func main() {
 		TimeFormat: "02 Jan 3:04:05 PM MST",
 	})
 
-	database.Connect(3 * time.Second)
-	defer database.Disconnect()
+	datastore.Connect(3 * time.Second)
+	defer datastore.Disconnect()
 
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/login", render.Login)

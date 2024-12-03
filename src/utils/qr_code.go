@@ -33,7 +33,7 @@ func ByteArrayToImage(imageData []byte) (image.Image, error) {
 var qrCodeB64 string
 
 func CreateQRCode(pin *string, generateNew bool) string {
-	if generateNew || qrCodeB64 != "" {
+	if !generateNew && qrCodeB64 != "" {
 		return qrCodeB64
 	}
 

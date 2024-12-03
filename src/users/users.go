@@ -1,7 +1,7 @@
 package users
 
 import (
-	"TitanAttendance/src/database"
+	"TitanAttendance/src/datastore"
 	"TitanAttendance/src/utils"
 	"context"
 	"errors"
@@ -29,7 +29,7 @@ func AddNewStudent(user User) error {
 	user.Name = strings.Join(strings.Fields(user.Name), " ")
 	user.Name = nameCaps.String(user.Name)
 
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -47,7 +47,7 @@ func GetStudents() []User {
 		return users
 	}
 
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
@@ -77,7 +77,7 @@ func GetStudents() []User {
 }
 
 func ClearAllStudents() error {
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

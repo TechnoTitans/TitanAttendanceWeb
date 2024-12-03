@@ -1,7 +1,7 @@
 package users
 
 import (
-	"TitanAttendance/src/database"
+	"TitanAttendance/src/datastore"
 	"TitanAttendance/src/utils"
 	"context"
 	"errors"
@@ -72,7 +72,7 @@ func (u *User) CheckIn() error {
 	}
 	u.getFullUserData()
 
-	conn := database.GetConn()
+	conn := datastore.GetConn()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
