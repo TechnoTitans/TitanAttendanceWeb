@@ -76,7 +76,8 @@ func (u *User) CheckIn() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	findResult := conn.Database(utils.DBName).Collection("meetings").FindOne(
+	meetingCollection := conn.Database(utils.GetDBName()).Collection("meetings")
+	findResult := meetingCollection.FindOne(
 		ctx,
 		map[string]interface{}{
 			"date": utils.GetCurrentDate(),
@@ -98,7 +99,7 @@ func (u *User) CheckIn() error {
 			}
 		}
 
-		_, err := conn.Database(utils.DBName).Collection("meetings").InsertOne(ctx, CurrentMeeting)
+		_, err := meetingCollection.InsertOne(ctx, CurrentMeeting)
 		if err != nil {
 			return err
 		}
@@ -121,7 +122,7 @@ func (u *User) CheckIn() error {
 		Time: utils.GetCurrentTime(),
 	}
 
-	_, err := conn.Database(utils.DBName).Collection("meetings").UpdateOne(
+	_, err := meetingCollection.UpdateOne(
 		ctx,
 		map[string]interface{}{
 			"date": utils.GetCurrentDate(),

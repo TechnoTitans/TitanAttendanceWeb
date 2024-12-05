@@ -33,7 +33,7 @@ func AddNewStudent(user User) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = conn.Database(utils.DBName).Collection("students").InsertOne(ctx, user)
+	_, err = conn.Database(utils.GetDBName()).Collection("students").InsertOne(ctx, user)
 	if err == nil {
 		users = append(users, user)
 	}
@@ -51,7 +51,7 @@ func GetStudents() []User {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cur, err := conn.Database(utils.DBName).Collection("students").Find(ctx, map[string]interface{}{})
+	cur, err := conn.Database(utils.GetDBName()).Collection("students").Find(ctx, map[string]interface{}{})
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to get students.")
 		return nil
@@ -81,7 +81,7 @@ func ClearAllStudents() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := conn.Database(utils.DBName).Collection("students").DeleteMany(ctx, map[string]interface{}{})
+	_, err := conn.Database(utils.GetDBName()).Collection("students").DeleteMany(ctx, map[string]interface{}{})
 	if err != nil {
 		return err
 	}

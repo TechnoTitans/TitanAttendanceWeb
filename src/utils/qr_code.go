@@ -43,7 +43,7 @@ func CreateQRCode(pin *string) QRCode {
 	}
 
 	qrc, err := qrcode.NewWith(
-		fmt.Sprintf("https://%s/login?code=%s", Domain, *pin),
+		fmt.Sprintf("https://%s/login?code=%s", GetDomain(), *pin),
 		qrcode.WithEncodingMode(qrcode.EncModeByte),
 		qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionHighest),
 	)

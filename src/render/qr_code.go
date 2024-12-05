@@ -42,7 +42,7 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 		IsAdmin bool
 	}{
 		QRCode:  utils.CreateQRCode(&newPin).Base64,
-		Domain:  utils.Domain,
+		Domain:  utils.GetDomain(),
 		Pin:     newPin,
 		IsAdmin: userAccess.IsAdmin(),
 	})
