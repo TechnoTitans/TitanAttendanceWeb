@@ -1,6 +1,7 @@
 package api
 
 import (
+	"TitanAttendance/src/auth"
 	"TitanAttendance/src/users"
 	"encoding/json"
 	"github.com/rs/zerolog/log"
@@ -17,8 +18,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 	}(body)
 
-	var req users.User
-	err := json.NewDecoder(body).Decode(&req)
+	var user users.User
+	err := json.NewDecoder(body).Decode(&user)
 	if err != nil {
 		log.Error().Err(err).Msg("error decoding request")
 		w.WriteHeader(http.StatusBadRequest)
@@ -29,7 +30,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.AddNewStudent(req)
+	if user.ID == auth.GetPin() {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	err = users.AddNewStudent(user)
 	if err != nil {
 		log.Error().Err(err).Msg("error adding new student")
 		w.WriteHeader(http.StatusBadRequest)
@@ -40,7 +46,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = req.CheckIn()
+	err = user.CheckIn()
 	if err != nil {
 		log.Error().Err(err).Msg("error checking in")
 		w.WriteHeader(http.StatusBadRequest)

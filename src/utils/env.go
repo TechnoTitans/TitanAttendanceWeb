@@ -7,7 +7,7 @@ import (
 
 const (
 	DBName = "titanattendance"
-	Domain = "https://spira1.com"
+	Domain = "spira1.com"
 )
 
 var (

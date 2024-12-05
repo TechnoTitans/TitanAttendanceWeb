@@ -1,6 +1,7 @@
 package api
 
 import (
+	"TitanAttendance/src/auth"
 	"TitanAttendance/src/users"
 	"encoding/json"
 	"io"
@@ -27,6 +28,12 @@ func CheckIn(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			log.Error().Err(err).Msg("error writing response")
 		}
+		return
+	}
+
+	if user.ID == auth.GetPin() {
+		w.WriteHeader(http.StatusBadRequest)
+		_, err = w.Write([]byte("your id cant be the same as the pin"))
 		return
 	}
 

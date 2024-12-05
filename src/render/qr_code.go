@@ -37,10 +37,12 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 
 	err = t.ExecuteTemplate(w, "qrcode", struct {
 		QRCode  string
+		Domain  string
 		Pin     string
 		IsAdmin bool
 	}{
 		QRCode:  utils.CreateQRCode(&newPin).Base64,
+		Domain:  utils.Domain,
 		Pin:     newPin,
 		IsAdmin: userAccess.IsAdmin(),
 	})

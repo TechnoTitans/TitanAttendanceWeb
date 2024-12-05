@@ -35,7 +35,11 @@
                                     type: 'danger',
                                     position: 'top-center'
                                 });
-
+                            } else if (text === 'your id cant be the same as the pin') {
+                                toast('Your student ID can not be the same as the session pin.', {
+                                    type: 'danger',
+                                    position: 'top-center'
+                                });
                             }
                         });
                     } else {
