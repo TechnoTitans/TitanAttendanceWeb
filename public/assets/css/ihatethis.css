@@ -22,3 +22,6 @@ body {
   border-image-source: linear-gradient(45deg, #9333ea, #3b82f6);
 }
 
+img {
+  pointer-events: none;
+}
