@@ -3,9 +3,10 @@ package render
 import (
 	"TitanAttendance/src/auth"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {

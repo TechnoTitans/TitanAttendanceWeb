@@ -4,9 +4,10 @@ import (
 	"TitanAttendance/src/auth"
 	"TitanAttendance/src/users"
 	"encoding/json"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {

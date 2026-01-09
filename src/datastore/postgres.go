@@ -33,7 +33,7 @@ func Connect(timeout time.Duration) {
 
 	_, err = db.Exec(
 		ctx,
-		`CREATE TABLE IF NOT EXISTS meetings (date TEXT PRIMARY KEY, absent JSONB NOT NULL, present JSONB NOT NULL)`)
+		`CREATE TABLE IF NOT EXISTS meetings (date TEXT PRIMARY KEY, absent_students JSONB NOT NULL, present_students JSONB NOT NULL)`)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to create meetings table.")
 	}

@@ -2,8 +2,8 @@
     <script>
         function postCreateUserForm() {
             return {
-                formData: {
-                    student_id: '{{.StudentID}}',
+                student: {
+                    id: '{{.StudentID}}',
                     name: ''
                 },
                 disableForm: false,
@@ -16,7 +16,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(this.formData)
+                        body: JSON.stringify(this.student)
                     })
                         .then(resp => {
                             if (resp.ok) {

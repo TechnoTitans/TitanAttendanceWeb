@@ -6,3 +6,7 @@ __debug_*
 /node_modules/
 TitanAttendance
 /.idea/dataSources.xml
+/.idea/copilot.data.migration.agent.xml
+/.idea/copilot.data.migration.ask.xml
+/.idea/copilot.data.migration.edit.xml
+/.idea/sqldialects.xml

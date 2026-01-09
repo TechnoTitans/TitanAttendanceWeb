@@ -33,9 +33,10 @@ func AddNewStudent(user User) error {
 	defer cancel()
 
 	_, err = client.Exec(ctx, `INSERT INTO students (id, name) VALUES ($1, $2)`, user.ID, user.Name)
-	if err == nil {
-		users = append(users, user)
+	if err != nil {
+		return err
 	}
+	users = append(users, user)
 
 	log.Info().Msgf("Added %s as a student.", user.Name)
 	return err

@@ -2,11 +2,12 @@ package downloads
 
 import (
 	"TitanAttendance/src/auth"
-	"TitanAttendance/src/users"
+	"TitanAttendance/src/meetings"
 	"fmt"
+	"net/http"
+
 	"github.com/rs/zerolog/log"
 	"github.com/xuri/excelize/v2"
-	"net/http"
 )
 
 func ExportDatabase(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +39,7 @@ func ExportDatabase(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	meetings, err := users.GetAllMeetings()
+	meetings, err := meetings.GetAllMeetings()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))

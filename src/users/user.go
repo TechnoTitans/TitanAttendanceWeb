@@ -2,6 +2,7 @@ package users
 
 import (
 	"TitanAttendance/src/datastore"
+	"TitanAttendance/src/meetings"
 	"TitanAttendance/src/utils"
 	"context"
 	"encoding/json"
@@ -13,7 +14,7 @@ import (
 )
 
 type User struct {
-	ID   string `json:"student_id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -50,7 +51,7 @@ func (u *User) IDExists() bool {
 }
 
 func (u *User) IsPresent() bool {
-	for _, v := range CurrentMeeting.Present {
+	for _, v := range meetings.CurrentMeeting.Present {
 		if v.ID == u.ID {
 			return true
 		}
@@ -83,82 +84,108 @@ func (u *User) CheckIn() error {
 		return err
 	}
 	defer func(tx pgx.Tx, ctx context.Context) {
-		_ = tx.Rollback(ctx)
+		err = tx.Rollback(ctx)
+		if err != nil && !errors.Is(err, pgx.ErrTxClosed) {
+			log.Error().Err(err).Msg("Failed to rollback transaction.")
+		}
 	}(tx, ctx)
 
 	date := utils.GetCurrentDate()
 	var absentJSON, presentJSON []byte
 
 	err = tx.QueryRow(ctx,
-		`SELECT absent, present FROM meetings WHERE date = $1`,
+		`SELECT absent_students, present_students FROM meetings WHERE date = $1`,
 		date,
 	).Scan(&absentJSON, &presentJSON)
 
 	if errors.Is(err, pgx.ErrNoRows) {
-		CurrentMeeting = Meeting{
+		meetings.CurrentMeeting = meetings.Meeting{
 			Date:    utils.GetCurrentDate(),
-			Absent:  []AbsentStudent{},
-			Present: []PresentStudent{},
+			Absent:  []meetings.AbsentStudent{},
+			Present: []meetings.PresentStudent{},
 		}
 
 		for _, student := range GetStudents() {
 			if student.ID != u.ID {
-				CurrentMeeting.Absent = append(CurrentMeeting.Absent, AbsentStudent{
+				meetings.CurrentMeeting.Absent = append(meetings.CurrentMeeting.Absent, meetings.AbsentStudent{
 					ID:   student.ID,
 					Name: student.Name,
 				})
 			}
 		}
-		absentJSON, err = json.Marshal(CurrentMeeting.Absent)
+		absentJSON, err = json.Marshal(meetings.CurrentMeeting.Absent)
 		if err != nil {
 			return err
 		}
 
-		presentJSON, err = json.Marshal(CurrentMeeting.Present)
+		presentJSON, err = json.Marshal(meetings.CurrentMeeting.Present)
 		if err != nil {
 			return err
 		}
 
-		_, err = tx.Exec(ctx, `INSERT INTO meetings (date, absent, present) VALUES ($1, $2::jsonb, $3::jsonb)`,
-			date, absentJSON, presentJSON,
+		_, err = tx.Exec(ctx,
+			`INSERT INTO meetings (date, absent_students, present_students) VALUES ($1, $2::jsonb, $3::jsonb)`,
+			date,
+			absentJSON,
+			presentJSON,
 		)
 		if err != nil {
 			return err
 		}
 	} else {
-		return err
+		if err != nil {
+			return err
+		}
+
+		if meetings.CurrentMeeting.Date != date {
+			meetings.CurrentMeeting = meetings.Meeting{
+				Date:    date,
+				Absent:  []meetings.AbsentStudent{},
+				Present: []meetings.PresentStudent{},
+			}
+
+			err = json.Unmarshal(absentJSON, &meetings.CurrentMeeting.Absent)
+			if err != nil {
+				return err
+			}
+
+			err = json.Unmarshal(presentJSON, &meetings.CurrentMeeting.Present)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	if u.IsPresent() {
 		return errors.New("already checked in")
 	}
 
-	presentStudent := PresentStudent{
+	presentStudent := meetings.PresentStudent{
 		ID:   u.ID,
 		Name: u.Name,
 		Time: utils.GetCurrentTime(),
 	}
+	meetings.CurrentMeeting.Present = append(meetings.CurrentMeeting.Present, presentStudent)
 
-	for i, v := range CurrentMeeting.Absent {
+	for i, v := range meetings.CurrentMeeting.Absent {
 		if v.ID == u.ID {
-			CurrentMeeting.Absent = append(CurrentMeeting.Absent[:i], CurrentMeeting.Absent[i+1:]...)
+			meetings.CurrentMeeting.Absent = append(meetings.CurrentMeeting.Absent[:i], meetings.CurrentMeeting.Absent[i+1:]...)
 			break
 		}
 	}
-	CurrentMeeting.Present = append(CurrentMeeting.Present, presentStudent)
 
-	absentJSON, err = json.Marshal(CurrentMeeting.Absent)
+	absentJSON, err = json.Marshal(meetings.CurrentMeeting.Absent)
 	if err != nil {
 		return err
 	}
 
-	presentJSON, err = json.Marshal(CurrentMeeting.Present)
+	presentJSON, err = json.Marshal(meetings.CurrentMeeting.Present)
 	if err != nil {
 		return err
 	}
 
 	_, err = tx.Exec(ctx,
-		`UPDATE meetings SET absent = $2::jsonb, present = $3::jsonb WHERE date = $1`,
+		`UPDATE meetings SET absent_students = $2::jsonb, present_students = $3::jsonb WHERE date = $1`,
 		date,
 		absentJSON,
 		presentJSON,

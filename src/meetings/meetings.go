@@ -1,4 +1,4 @@
-package users
+package meetings
 
 import (
 	"TitanAttendance/src/datastore"
@@ -10,20 +10,20 @@ import (
 )
 
 type AbsentStudent struct {
-	ID   string `json:"student_id"`
-	Name string `json:"student_name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type PresentStudent struct {
-	ID   string `json:"student_id"`
-	Name string `json:"student_name"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
 	Time string `json:"time"`
 }
 
 type Meeting struct {
 	Date    string           `json:"date"`
-	Absent  []AbsentStudent  `json:"absent"`
-	Present []PresentStudent `json:"present"`
+	Absent  []AbsentStudent  `json:"absent_students"`
+	Present []PresentStudent `json:"present_students"`
 }
 
 var CurrentMeeting Meeting
@@ -47,7 +47,7 @@ func GetAllMeetings() ([]Meeting, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	rows, err := client.Query(ctx, `SELECT date, absent, present FROM meetings`)
+	rows, err := client.Query(ctx, `SELECT date, absent_students, present_students FROM meetings`)
 	if err != nil {
 		return nil, err
 	}

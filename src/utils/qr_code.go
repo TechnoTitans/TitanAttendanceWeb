@@ -17,7 +17,9 @@ type nopCloser struct {
 	io.Writer
 }
 
-func (nopCloser) Close() error { return nil }
+func (nopCloser) Close() error {
+	return nil
+}
 
 func ByteArrayToImage(imageData []byte) (image.Image, error) {
 	reader := bytes.NewReader(imageData)

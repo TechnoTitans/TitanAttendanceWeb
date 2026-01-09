@@ -2,10 +2,11 @@ package render
 
 import (
 	"TitanAttendance/src/auth"
-	"github.com/gorilla/mux"
-	"github.com/rs/zerolog/log"
 	"html/template"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/rs/zerolog/log"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {

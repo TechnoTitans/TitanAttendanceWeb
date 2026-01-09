@@ -3,9 +3,10 @@ package api
 import (
 	"TitanAttendance/src/auth"
 	"encoding/json"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 func LogIn(w http.ResponseWriter, r *http.Request) {

@@ -2,15 +2,17 @@ package api
 
 import (
 	"TitanAttendance/src/auth"
+	"TitanAttendance/src/meetings"
 	"TitanAttendance/src/users"
 	"encoding/csv"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 func Upload(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +71,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = users.ClearAllMeetings()
+	err = meetings.ClearAllMeetings()
 	if err != nil && !errors.Is(err, mongo.ErrNilDocument) {
 		w.WriteHeader(http.StatusInternalServerError)
 		_, err = w.Write([]byte(err.Error()))

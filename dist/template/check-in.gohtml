@@ -19,7 +19,7 @@
                         {{ template "pines-new-user-modal" .}}
                         <div>
                             <label for="number-input" class="block mb-2 text-sm font-medium text-white">School ID:</label>
-                            <input x-model="formData.student_id" :disabled="disableForm" inputmode="numeric" type="number" id="number-input" aria-describedby="helper-text-explanation" class="border border-gray-300 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" required />
+                            <input x-model="student.id" :disabled="disableForm" inputmode="numeric" type="number" id="number-input" aria-describedby="helper-text-explanation" class="border border-gray-300 text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" required />
                         </div>
                         <div>
                             <button :disabled="disableForm" type="submit" class="flex w-full mt-10 justify-center rounded-lg bg-indigo-600 px-1 py-1 text-sm font-semibold leading-6 group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white text-white focus:ring-4 focus:outline-none focus:ring-blue-800 ">
