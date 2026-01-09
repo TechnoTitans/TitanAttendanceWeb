@@ -5,3 +5,4 @@
 __debug_*
 /node_modules/
 TitanAttendance
+/.idea/dataSources.xml

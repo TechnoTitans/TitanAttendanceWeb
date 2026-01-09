@@ -2,15 +2,14 @@ package users
 
 import (
 	"TitanAttendance/src/datastore"
-	"TitanAttendance/src/utils"
 	"context"
 	"errors"
-	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"strings"
 	"time"
+
+	"github.com/rs/zerolog/log"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 )
 
 var users []User
@@ -29,11 +28,11 @@ func AddNewStudent(user User) error {
 	user.Name = strings.Join(strings.Fields(user.Name), " ")
 	user.Name = nameCaps.String(user.Name)
 
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err = conn.Database(utils.GetDBName()).Collection("students").InsertOne(ctx, user)
+	_, err = client.Exec(ctx, `INSERT INTO students (id, name) VALUES ($1, $2)`, user.ID, user.Name)
 	if err == nil {
 		users = append(users, user)
 	}
@@ -47,29 +46,24 @@ func GetStudents() []User {
 		return users
 	}
 
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cur, err := conn.Database(utils.GetDBName()).Collection("students").Find(ctx, map[string]interface{}{})
+	rows, err := client.Query(ctx, `SELECT id, name FROM students`)
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to get students.")
 		return nil
 	}
-	defer func(cur *mongo.Cursor) {
-		err = cur.Close(ctx)
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to close cursor.")
-		}
-	}(cur)
+	defer rows.Close()
 
-	for cur.Next(ctx) {
+	for rows.Next() {
 		var user User
-		err = cur.Decode(&user)
+		err := rows.Scan(&user.ID, &user.Name)
 		if err != nil {
-			log.Error().Err(err).Msg("Failed to decode user.")
-			return nil
+			log.Error().Err(err).Msg("Failed to scan student row.")
+			continue
 		}
+
 		users = append(users, user)
 	}
 
@@ -77,11 +71,11 @@ func GetStudents() []User {
 }
 
 func ClearAllStudents() error {
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := conn.Database(utils.GetDBName()).Collection("students").DeleteMany(ctx, map[string]interface{}{})
+	_, err := client.Exec(ctx, `DELETE FROM students`)
 	if err != nil {
 		return err
 	}

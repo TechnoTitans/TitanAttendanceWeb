@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"github.com/rs/zerolog/log"
 	"os"
+
+	"github.com/rs/zerolog/log"
 )
 
 var (
 	adminPassword = os.Getenv("ADMIN_PASSWORD")
-	dbName        = os.Getenv("DB_NAME")
-	domain        = os.Getenv("DOMAIN")
+	dbURL         = os.Getenv("DB_URL")
 )
 
 func init() {
@@ -16,12 +16,8 @@ func init() {
 		log.Fatal().Msg("ADMIN_PASSWORD environment variable not set.")
 	}
 
-	if dbName == "" {
-		log.Fatal().Msg("DB_NAME environment variable not set.")
-	}
-
-	if domain == "" {
-		log.Fatal().Msg("DOMAIN environment variable not set.")
+	if dbURL == "" {
+		log.Fatal().Msg("DB_URL environment variable not set.")
 	}
 }
 
@@ -29,10 +25,6 @@ func GetAdminPassword() string {
 	return adminPassword
 }
 
-func GetDBName() string {
-	return dbName
-}
-
-func GetDomain() string {
-	return domain
+func GetDBURL() string {
+	return dbURL
 }

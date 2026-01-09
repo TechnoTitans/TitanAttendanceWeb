@@ -2,10 +2,11 @@ package users
 
 import (
 	"TitanAttendance/src/datastore"
-	"TitanAttendance/src/utils"
 	"context"
-	"github.com/rs/zerolog/log"
+	"encoding/json"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type AbsentStudent struct {
@@ -28,11 +29,11 @@ type Meeting struct {
 var CurrentMeeting Meeting
 
 func ClearAllMeetings() error {
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	_, err := conn.Database(utils.GetDBName()).Collection("meetings").DeleteMany(ctx, map[string]interface{}{})
+	_, err := client.Exec(ctx, `DELETE FROM meetings`)
 	if err != nil {
 		return err
 	}
@@ -42,23 +43,38 @@ func ClearAllMeetings() error {
 }
 
 func GetAllMeetings() ([]Meeting, error) {
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	cursor, err := conn.Database(utils.GetDBName()).Collection("meetings").Find(ctx, map[string]interface{}{})
+	rows, err := client.Query(ctx, `SELECT date, absent, present FROM meetings`)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	var meetings []Meeting
-	for cursor.Next(ctx) {
+	for rows.Next() {
 		var meeting Meeting
-		err = cursor.Decode(&meeting)
+		var absentJSON, presentJSON []byte
+
+		err := rows.Scan(&meeting.Date, &absentJSON, &presentJSON)
 		if err != nil {
 			return nil, err
 		}
+
+		if err := json.Unmarshal(absentJSON, &meeting.Absent); err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(presentJSON, &meeting.Present); err != nil {
+			return nil, err
+		}
+
 		meetings = append(meetings, meeting)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return meetings, nil

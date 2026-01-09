@@ -37,13 +37,13 @@ type QRCode struct {
 
 var cachedQRCode QRCode
 
-func CreateQRCode(pin *string) QRCode {
+func CreateQRCode(host string, pin *string) QRCode {
 	if cachedQRCode.Pin == *pin && cachedQRCode.Base64 != "" {
 		return cachedQRCode
 	}
 
 	qrc, err := qrcode.NewWith(
-		fmt.Sprintf("https://%s/login?code=%s", GetDomain(), *pin),
+		fmt.Sprintf("https://%s/login?code=%s", host, *pin),
 		qrcode.WithEncodingMode(qrcode.EncModeByte),
 		qrcode.WithErrorCorrectionLevel(qrcode.ErrorCorrectionHighest),
 	)

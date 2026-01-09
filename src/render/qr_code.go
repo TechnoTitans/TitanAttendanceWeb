@@ -34,6 +34,7 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newPin := auth.GetPin()
+	urlHost := r.Host
 
 	err = t.ExecuteTemplate(w, "qrcode", struct {
 		QRCode  string
@@ -41,8 +42,8 @@ func QRCode(w http.ResponseWriter, r *http.Request) {
 		Pin     string
 		IsAdmin bool
 	}{
-		QRCode:  utils.CreateQRCode(&newPin).Base64,
-		Domain:  utils.GetDomain(),
+		QRCode:  utils.CreateQRCode(urlHost, &newPin).Base64,
+		Domain:  urlHost,
 		Pin:     newPin,
 		IsAdmin: userAccess.IsAdmin(),
 	})

@@ -4,10 +4,12 @@ import (
 	"TitanAttendance/src/datastore"
 	"TitanAttendance/src/utils"
 	"context"
+	"encoding/json"
 	"errors"
-	"github.com/rs/zerolog/log"
-	"go.mongodb.org/mongo-driver/v2/mongo"
 	"time"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog/log"
 )
 
 type User struct {
@@ -72,18 +74,27 @@ func (u *User) CheckIn() error {
 	}
 	u.getFullUserData()
 
-	conn := datastore.GetConn()
+	client := datastore.GetClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	meetingCollection := conn.Database(utils.GetDBName()).Collection("meetings")
-	findResult := meetingCollection.FindOne(
-		ctx,
-		map[string]interface{}{
-			"date": utils.GetCurrentDate(),
-		},
-	)
-	if errors.Is(findResult.Err(), mongo.ErrNoDocuments) {
+	tx, err := client.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func(tx pgx.Tx, ctx context.Context) {
+		_ = tx.Rollback(ctx)
+	}(tx, ctx)
+
+	date := utils.GetCurrentDate()
+	var absentJSON, presentJSON []byte
+
+	err = tx.QueryRow(ctx,
+		`SELECT absent, present FROM meetings WHERE date = $1`,
+		date,
+	).Scan(&absentJSON, &presentJSON)
+
+	if errors.Is(err, pgx.ErrNoRows) {
 		CurrentMeeting = Meeting{
 			Date:    utils.GetCurrentDate(),
 			Absent:  []AbsentStudent{},
@@ -98,18 +109,24 @@ func (u *User) CheckIn() error {
 				})
 			}
 		}
+		absentJSON, err = json.Marshal(CurrentMeeting.Absent)
+		if err != nil {
+			return err
+		}
 
-		_, err := meetingCollection.InsertOne(ctx, CurrentMeeting)
+		presentJSON, err = json.Marshal(CurrentMeeting.Present)
+		if err != nil {
+			return err
+		}
+
+		_, err = tx.Exec(ctx, `INSERT INTO meetings (date, absent, present) VALUES ($1, $2::jsonb, $3::jsonb)`,
+			date, absentJSON, presentJSON,
+		)
 		if err != nil {
 			return err
 		}
 	} else {
-		var meeting Meeting
-		err := findResult.Decode(&meeting)
-		if err != nil {
-			return err
-		}
-		CurrentMeeting = meeting
+		return err
 	}
 
 	if u.IsPresent() {
@@ -122,27 +139,6 @@ func (u *User) CheckIn() error {
 		Time: utils.GetCurrentTime(),
 	}
 
-	_, err := meetingCollection.UpdateOne(
-		ctx,
-		map[string]interface{}{
-			"date": utils.GetCurrentDate(),
-		},
-		map[string]interface{}{
-			"$pull": map[string]interface{}{
-				"absent": AbsentStudent{
-					ID:   u.ID,
-					Name: u.Name,
-				},
-			},
-			"$push": map[string]interface{}{
-				"present": presentStudent,
-			},
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	for i, v := range CurrentMeeting.Absent {
 		if v.ID == u.ID {
 			CurrentMeeting.Absent = append(CurrentMeeting.Absent[:i], CurrentMeeting.Absent[i+1:]...)
@@ -150,6 +146,30 @@ func (u *User) CheckIn() error {
 		}
 	}
 	CurrentMeeting.Present = append(CurrentMeeting.Present, presentStudent)
+
+	absentJSON, err = json.Marshal(CurrentMeeting.Absent)
+	if err != nil {
+		return err
+	}
+
+	presentJSON, err = json.Marshal(CurrentMeeting.Present)
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx,
+		`UPDATE meetings SET absent = $2::jsonb, present = $3::jsonb WHERE date = $1`,
+		date,
+		absentJSON,
+		presentJSON,
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return err
+	}
 
 	log.Info().Msgf("%s | Checked In!", u.Name)
 	return nil
